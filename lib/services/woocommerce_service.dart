@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -9,7 +10,7 @@ class WooCommerceService {
   Future<List<dynamic>> fetchProducts() async {
     try {
       final String url =
-          '$baseUrl/products?consumer_key=$consumerKey&consumer_secret=$consumerSecret&per_page=20';
+          '$baseUrl/products?consumer_key=$consumerKey&consumer_secret=$consumerSecret&per_page=50';
 
       final response = await http.get(Uri.parse(url));
 

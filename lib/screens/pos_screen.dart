@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/cart_item.dart';
+import '../services/woocommerce_service.dart';
 import '../widgets/cart_sidebar.dart';
 import '../widgets/product_grid.dart';
 import '../widgets/top_nav.dart';
-import '../services/woocommerce_service.dart';
+import '../utils/sumup_launcher.dart';
 
 class POSScreen extends StatefulWidget {
   @override
@@ -32,6 +33,7 @@ class _POSScreenState extends State<POSScreen> {
                 (p) => Product(
                   p['name'],
                   double.tryParse(p['price'].toString()) ?? 0,
+                  p['sku'] ?? '',
                 ),
               )
               .toList();
@@ -65,24 +67,13 @@ class _POSScreenState extends State<POSScreen> {
     });
   }
 
-  void _checkout() {
-    showDialog(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            title: Text("Checkout"),
-            content: Text("Simulated payment success."),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  setState(() => cart.clear());
-                  Navigator.pop(context);
-                },
-                child: Text("OK"),
-              ),
-            ],
-          ),
+  void _checkout() async {
+    final total = cart.fold(
+      0.0,
+      (sum, item) => sum + item.price * item.quantity,
     );
+    await SumUpLauncher.launchSumUpPayment(total);
+    setState(() => cart.clear());
   }
 
   @override
