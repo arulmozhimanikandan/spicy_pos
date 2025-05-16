@@ -1,0 +1,9 @@
+name: spicy_tulip_pos
+version: 1.0.0
+
+environment:
+  sdk: "^3.7.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
