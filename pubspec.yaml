@@ -1,7 +1,7 @@
 
 name: spicy_tulip_pos
-description: POS system for Spicy Tulip
-version: 1.0.0
+description: Fixed version with WooCommerce integration and price formatting
+version: 1.0.1
 
 environment:
   sdk: '>=3.7.0 <4.0.0'
@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.4.0
+  intl: ^0.18.1
 
 flutter:
   uses-material-design: true
