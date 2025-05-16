@@ -1,7 +1,10 @@
-
 import 'package:flutter/material.dart';
+import '../models/product.dart';
+import '../models/cart_item.dart';
+import '../widgets/cart_sidebar.dart';
+import '../widgets/product_grid.dart';
+import '../widgets/top_nav.dart';
 import '../services/woocommerce_service.dart';
-import 'package:intl/intl.dart';
 
 class POSScreen extends StatefulWidget {
   @override
@@ -9,8 +12,9 @@ class POSScreen extends StatefulWidget {
 }
 
 class _POSScreenState extends State<POSScreen> {
-  List<dynamic> _products = [];
-  bool _loading = true;
+  List<Product> products = [];
+  List<Product> filteredProducts = [];
+  List<CartItem> cart = [];
 
   @override
   void initState() {
@@ -19,50 +23,96 @@ class _POSScreenState extends State<POSScreen> {
   }
 
   void _fetchProducts() async {
-    try {
-      final service = WooCommerceService();
-      final products = await service.fetchProducts();
-      setState(() {
-        _products = products;
-        _loading = false;
-      });
-    } catch (e) {
-      print('Error fetching products: $e');
-      setState(() {
-        _loading = false;
-      });
-    }
+    final service = WooCommerceService();
+    final fetched = await service.fetchProducts();
+    setState(() {
+      products =
+          fetched
+              .map(
+                (p) => Product(
+                  p['name'],
+                  double.tryParse(p['price'].toString()) ?? 0,
+                ),
+              )
+              .toList();
+      filteredProducts = List.from(products);
+    });
+  }
+
+  void _addToCart(Product p) {
+    setState(() {
+      final existing = cart.indexWhere((item) => item.name == p.name);
+      if (existing >= 0) {
+        cart[existing].quantity++;
+      } else {
+        cart.add(CartItem(name: p.name, quantity: 1, price: p.price));
+      }
+    });
+  }
+
+  void _removeFromCart(CartItem item) {
+    setState(() {
+      cart.removeWhere((i) => i.name == item.name);
+    });
+  }
+
+  void _search(String query) {
+    setState(() {
+      filteredProducts =
+          products
+              .where((p) => p.name.toLowerCase().contains(query.toLowerCase()))
+              .toList();
+    });
+  }
+
+  void _checkout() {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: Text("Checkout"),
+            content: Text("Simulated payment success."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  setState(() => cart.clear());
+                  Navigator.pop(context);
+                },
+                child: Text("OK"),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final formatter = NumberFormat.currency(locale: 'nl_NL', symbol: '€');
-    return Scaffold(
-      appBar: AppBar(title: Text('Spicy Tulip POS')),
-      body: _loading
-          ? Center(child: CircularProgressIndicator())
-          : GridView.builder(
-              padding: EdgeInsets.all(10),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, childAspectRatio: 2),
-              itemCount: _products.length,
-              itemBuilder: (context, index) {
-                final product = _products[index];
-                final priceStr = product['price']?.toString() ?? '0';
-                final price = double.tryParse(priceStr) ?? 0;
-                return Card(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(product['name'] ?? 'No Name', textAlign: TextAlign.center),
-                        Text(formatter.format(price)),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+    final total = cart.fold(
+      0.0,
+      (sum, item) => sum + item.price * item.quantity,
+    );
+    return Column(
+      children: [
+        TopNav(onSearch: _search),
+        Expanded(
+          child: Row(
+            children: [
+              CartSidebar(
+                cartItems: cart,
+                total: total,
+                onRemove: _removeFromCart,
+                onCheckout: _checkout,
+              ),
+              Expanded(
+                child: ProductGrid(
+                  products: filteredProducts,
+                  onAdd: _addToCart,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

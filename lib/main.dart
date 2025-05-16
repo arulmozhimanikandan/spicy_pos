@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'screens/pos_screen.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -10,8 +11,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Spicy Tulip POS',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.teal),
-      home: LoginScreen(),
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: Scaffold(body: POSScreen()),
     );
   }
 }
