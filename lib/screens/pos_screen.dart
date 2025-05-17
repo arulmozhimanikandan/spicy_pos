@@ -91,13 +91,22 @@ class _POSScreenState extends State<POSScreen> {
 
   void _search(String query) {
     final lowerQuery = query.trim().toLowerCase();
+    print("flutter: $lowerQuery");
 
     final exact = products.firstWhere(
-      (p) => (p.sku ?? '').trim().toLowerCase() == lowerQuery,
-      orElse: () => Product('', 0, ''),
+      (p) => (p.sku ?? '').trim().toLowerCase().contains(lowerQuery),
+      orElse: () => Product('', 0.0, ''),
     );
 
-    if (exact.sku.isNotEmpty) {
+    print(
+      "flutter: Checking SKU match against: '\${exact.sku}' — Name: \${exact.name}",
+    );
+    print(
+      "flutter: Match condition: \${exact.name.isNotEmpty && lowerQuery.length >= 10}",
+    );
+
+    if (lowerQuery.length >= 10 && exact.name.isNotEmpty) {
+      print("flutter: Exact match found — Adding to cart: \${exact.name}");
       _addToCart(exact);
       _controller.clear();
       searchFocus.requestFocus();
