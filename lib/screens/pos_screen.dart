@@ -28,7 +28,7 @@ class _POSScreenState extends State<POSScreen> {
   void _fetchProducts() async {
     final service = WooCommerceService();
     final fetched = await service.fetchAllProductsWithVariations();
-    print("Total fetched items (in stock only): \${fetched.length}");
+    print("Total fetched items (in stock only): ${fetched.length}");
 
     final Map<int, String> parentNames = {};
     for (var p in fetched) {
@@ -99,7 +99,7 @@ class _POSScreenState extends State<POSScreen> {
     );
 
     print(
-      "flutter: Checking SKU match against: '\${exact.sku}' — Name: \${exact.name}",
+      "flutter: Checking SKU match against: '${exact.sku}' — Name: ${exact.name}",
     );
     print(
       "flutter: Match condition: \${exact.name.isNotEmpty && lowerQuery.length >= 10}",
@@ -109,8 +109,14 @@ class _POSScreenState extends State<POSScreen> {
       print("flutter: Exact match found — Adding to cart: \${exact.name}");
       _addToCart(exact);
 
-      Future.delayed(Duration(milliseconds: 500), () {
-        _controller.clear();
+      setState(() {
+        filteredProducts = List.from(products); // reset product grid
+      });
+
+      Future.delayed(Duration(milliseconds: 200), () {
+        if (_controller.text.isNotEmpty) {
+          _controller.clear(); // flush delayed input
+        }
         searchFocus.requestFocus();
       });
 
