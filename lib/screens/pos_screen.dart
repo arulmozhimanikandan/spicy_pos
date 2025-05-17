@@ -108,8 +108,12 @@ class _POSScreenState extends State<POSScreen> {
     if (lowerQuery.length >= 10 && exact.name.isNotEmpty) {
       print("flutter: Exact match found — Adding to cart: \${exact.name}");
       _addToCart(exact);
-      _controller.clear();
-      searchFocus.requestFocus();
+
+      Future.delayed(Duration(milliseconds: 500), () {
+        _controller.clear();
+        searchFocus.requestFocus();
+      });
+
       return;
     }
 
