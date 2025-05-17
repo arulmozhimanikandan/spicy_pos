@@ -30,8 +30,9 @@ class ProductGrid extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(product.name, style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
+                  SizedBox(height: 4),
                   Text("€${product.price.toStringAsFixed(2)}"),
+                  Text("SKU: ${product.sku}", style: TextStyle(fontSize: 12)),
                 ],
               ),
             ),
